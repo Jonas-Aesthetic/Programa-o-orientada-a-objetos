@@ -1,0 +1,27 @@
+# ── Sistema de Agenda — Configurações Apache ──────────────────
+# Este arquivo configura o servidor Apache para o projeto.
+
+Options -Indexes
+RewriteEngine On
+
+# Redireciona todas as requisições para index.html (SPA)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(?!api/)(.*)$ index.html [L]
+
+# Cabeçalhos de segurança
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Cache para assets estáticos
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff2?)$">
+  Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+
+# Sem cache para PHP e JSON
+<FilesMatch "\.(php|json)$">
+  Header set Cache-Control "no-store, no-cache, must-revalidate"
+</FilesMatch>
