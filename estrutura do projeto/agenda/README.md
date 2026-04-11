@@ -1,91 +1,118 @@
-# 📅 Sistema de Agenda em PHP + JSON
+# 📅 Sistema de Agendamento em PHP
 
-Sistema completo de agendamento de compromissos com frontend moderno e backend PHP usando JSON como banco de dados.
+O desenvolvimento deste sistema de agenda em PHP começa com o planejamento das funcionalidades, como cadastrar, visualizar, editar e excluir compromissos. O banco de dados é representado por um arquivo JSON que armazena informações como título, descrição, data e horário dos eventos. A interface do sistema é desenvolvida com HTML e CSS, permitindo que o usuário interaja com a agenda de forma simples e intuitiva. O PHP é responsável por processar as requisições e conectar o frontend ao banco de dados JSON. Assim, o sistema consegue salvar e mostrar os compromissos cadastrados. Por fim, são realizados testes para garantir que tudo funcione corretamente antes de disponibilizar o sistema.
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Estrutura de Arquivos
 
 ```
-agenda/
-├── index.html           ← Frontend (HTML + CSS + JavaScript)
-├── .htaccess            ← Configuração Apache
+/
 ├── api/
-│   └── agenda.php       ← API RESTful em PHP
+│   └── agenda.php          ← API PHP com as 3 classes
 └── data/
-    └── compromissos.json ← Banco de dados JSON
+    └── compromissos.json   ← Banco de dados JSON
 ```
 
 ---
 
-## 🚀 Como rodar
+## 🧱 Classes PHP (POO)
 
-### Requisitos
-- PHP 8.0+
-- Apache ou Nginx com mod_rewrite habilitado
-- Permissão de escrita na pasta `data/`
+### `Compromisso`
+Representa um compromisso da agenda. Possui atributos privados, getters, setters, validação e conversão para array.
 
-### Instalação
+| Atributo | Tipo | Descrição |
+|---|---|---|
+| `$id` | string | Identificador único |
+| `$titulo` | string | Nome do compromisso |
+| `$descricao` | string | Detalhes do evento |
+| `$data` | string | Data no formato AAAA-MM-DD |
+| `$horario` | string | Horário no formato HH:MM |
+| `$categoria` | string | trabalho, saude ou pessoal |
+| `$created_at` | string | Data e hora de criação |
 
-1. **Clone ou extraia** os arquivos em uma pasta do seu servidor web (ex: `/var/www/html/agenda` ou `htdocs/agenda`)
-
-2. **Permissões** — garanta que o PHP pode escrever no arquivo JSON:
-   ```bash
-   chmod 664 data/compromissos.json
-   chmod 775 data/
-   ```
-
-3. **Apache** — habilite o mod_rewrite:
-   ```bash
-   sudo a2enmod rewrite
-   sudo systemctl restart apache2
-   ```
-
-4. **Acesse** `http://localhost/agenda/` no navegador.
+**Métodos:**
+- `validar()` — verifica se os campos obrigatórios estão preenchidos
+- `toArray()` — converte o objeto para array (para salvar no JSON)
 
 ---
 
-## 🔌 API RESTful (PHP)
+### `Banco`
+Responsável por ler e salvar o arquivo `compromissos.json`.
 
-| Método | Rota                     | Ação                        |
-|--------|--------------------------|-----------------------------|
-| GET    | `/api/agenda.php`        | Lista todos os compromissos |
-| GET    | `/api/agenda.php?id=1`   | Retorna um compromisso      |
-| POST   | `/api/agenda.php`        | Cria novo compromisso       |
-| PUT    | `/api/agenda.php?id=1`   | Edita compromisso existente |
-| DELETE | `/api/agenda.php?id=1`   | Remove compromisso          |
+| Método | Descrição |
+|---|---|
+| `ler()` | Lê e decodifica o arquivo JSON |
+| `salvar()` | Codifica e grava os dados no arquivo |
 
-### Exemplo de payload (POST/PUT)
+---
+
+### `Agendamento`
+Processa as requisições HTTP e executa o CRUD. Recebe o objeto `Banco` pelo construtor.
+
+| Método | Descrição |
+|---|---|
+| `processar()` | Identifica o método HTTP e direciona a ação |
+| `listar()` | Retorna todos ou um compromisso por ID |
+| `criar()` | Cadastra um novo compromisso |
+| `atualizar()` | Edita um compromisso existente |
+| `remover()` | Exclui um compromisso |
+
+---
+
+## 🔌 Rotas da API
+
+| Método | URL | Ação |
+|---|---|---|
+| `GET` | `api/agenda.php` | Lista todos os compromissos |
+| `GET` | `api/agenda.php?id=1` | Busca um compromisso por ID |
+| `POST` | `api/agenda.php` | Cadastra novo compromisso |
+| `PUT` | `api/agenda.php?id=1` | Edita compromisso existente |
+| `DELETE` | `api/agenda.php?id=1` | Exclui um compromisso |
+
+---
+
+## 📦 Exemplo de Compromisso (JSON)
+
 ```json
 {
-  "titulo":    "Reunião de planejamento",
-  "descricao": "Alinhamento semanal da equipe.",
-  "data":      "2026-04-15",
-  "horario":   "09:00",
-  "categoria": "trabalho"
+  "id": "1",
+  "titulo": "Reunião de planejamento",
+  "descricao": "Reunião semanal com a equipe para alinhar metas e tarefas.",
+  "data": "2026-04-15",
+  "horario": "09:00",
+  "categoria": "trabalho",
+  "created_at": "2026-04-09T10:00:00"
 }
 ```
 
-### Categorias disponíveis
-- `trabalho`
-- `saude`
-- `pessoal`
-- `outro`
+---
+
+## 🚀 Como Usar
+
+**Requisitos:**
+- PHP 8.0 ou superior
+- Servidor Apache ou Nginx com suporte a PHP
+
+**Passos:**
+1. Coloque os arquivos em uma pasta no servidor (ex: `htdocs/agenda`)
+2. Garanta que a pasta `data/` tem permissão de escrita:
+```bash
+chmod 664 data/compromissos.json
+```
+3. Acesse via navegador ou faça requisições à API:
+```
+http://localhost/agenda/api/agenda.php
+```
 
 ---
 
-## 🛠️ Funcionalidades
+## ✅ Funcionalidades
 
-- ✅ **CRUD completo** — criar, visualizar, editar e excluir compromissos
-- 🔍 **Busca em tempo real** por título e descrição
-- 🏷️ **Filtro por categoria** — trabalho, saúde, pessoal, outro
-- ⏰ **Contagem regressiva** — dias restantes para cada compromisso
-- 📱 **Responsivo** — funciona em desktop, tablet e mobile
-- 🌙 **Tema escuro** refinado com paleta dourada
-- 💾 **Persistência** — dados salvos em JSON (localStorage no frontend demo)
-
----
-
-## 📄 Licença
-
-Projeto livre para uso educacional e comercial.
+- [x] Cadastrar compromisso
+- [x] Visualizar todos os compromissos
+- [x] Buscar compromisso por ID
+- [x] Editar compromisso existente
+- [x] Excluir compromisso
+- [x] Validação dos campos obrigatórios
+- [x] Respostas HTTP com status codes corretos
